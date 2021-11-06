@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 
 // RenovateNetworkMultiplayer.cs
-// Renovate Software LTD 2020
+// Renovate Software LTD 2021
 // Written by Alexander Walford
 
 class RenovateNetwork
@@ -16,7 +16,7 @@ class RenovateNetwork
 		var values = new Dictionary<string, string>
         {
             { "apikey", apikey },
-            { "userid", username },
+            { "playerid", username },
 			{ "lobbyid", lobby },
 			{ "position", position },
 			{ "rotation", rotation }
@@ -34,7 +34,7 @@ class RenovateNetwork
 		var values = new Dictionary<string, string>
         {
             { "apikey", apikey },
-            { "userid", username }
+            { "playerid", username }
         };
         var content = new FormUrlEncodedContent(values);
         var response = await client.PostAsync("https://renovatesoftware.com/API/getplayerdata/ ", content);

@@ -1,4 +1,6 @@
 // RenovateNetworkMultiplayer.js
+// Renovate Software LTD 2021
+// Written by Alexander Walford
 
 function SetPlayer(apikey, username, lobby, position, rotation) {
 var url = "https://renovatesoftware.com/API/setplayerdata/";
