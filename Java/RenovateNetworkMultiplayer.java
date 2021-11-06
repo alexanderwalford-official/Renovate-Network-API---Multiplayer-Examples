@@ -15,7 +15,7 @@ import java.util.StringJoiner;
 
 public class RenovateNetwork {
 	
-	public static void SetPlayer (String apikey, String username, String lobby, String position, String rotation) throws IOException {
+	public static byte[] SetPlayer (String apikey, String username, String lobby, String position, String rotation) throws IOException {
         URL url = new URL("https://renovatesoftware.com/API/setplayerdata/");
         URLConnection con = url.openConnection();
         HttpURLConnection http = (HttpURLConnection)con;
@@ -42,11 +42,11 @@ public class RenovateNetwork {
         http.connect();
         try(OutputStream os = http.getOutputStream()) {
             // handle output
-            return out
+            return out;
         }
     }
-	
-	public static void GetPlayer (String apikey, String username) throws IOException {
+
+    public static byte[] GetPlayer (String apikey, String username) throws IOException {
         URL url = new URL("https://renovatesoftware.com/API/getplayerdata/");
         URLConnection con = url.openConnection();
         HttpURLConnection http = (HttpURLConnection)con;
@@ -70,11 +70,11 @@ public class RenovateNetwork {
         http.connect();
         try(OutputStream os = http.getOutputStream()) {
             // handle output
-            return out
+            return out;
         }
     }
-	
-	public static void GetPlayerList (String apikey, String lobby) throws IOException {
+
+    public static byte[] GetPlayerList (String apikey, String lobby) throws IOException {
         URL url = new URL("https://renovatesoftware.com/API/getplayerlist/");
         URLConnection con = url.openConnection();
         HttpURLConnection http = (HttpURLConnection)con;
@@ -98,7 +98,7 @@ public class RenovateNetwork {
         http.connect();
         try(OutputStream os = http.getOutputStream()) {
             // handle output
-            return out
+            return out;
         }
     }
 }
