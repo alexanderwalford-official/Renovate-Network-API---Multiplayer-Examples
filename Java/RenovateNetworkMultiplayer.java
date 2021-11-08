@@ -101,4 +101,63 @@ public class RenovateNetwork {
             return out;
         }
     }
+	
+	public static byte[] SetGameObject (String apikey, String objectid, String lobby, String params) throws IOException {
+        URL url = new URL("https://renovatesoftware.com/API/setgameobjectdata/");
+        URLConnection con = url.openConnection();
+        HttpURLConnection http = (HttpURLConnection)con;
+        http.setRequestMethod("POST"); // set the method to POST
+        http.setDoOutput(true);
+
+        Map<String,String> arguments = new HashMap<>();
+
+        arguments.put("apikey", apikey); // provide the API key
+        arguments.put("objectid", objectid); // set the object id
+        arguments.put("lobbyid", lobby); // set the lobby id
+        arguments.put("params", params); // set the player position
+
+        StringJoiner sj = new StringJoiner("&");
+        for(Map.Entry<String,String> entry : arguments.entrySet())
+            sj.add(URLEncoder.encode(entry.getKey(), "UTF-8") + "="
+                    + URLEncoder.encode(entry.getValue(), "UTF-8"));
+        byte[] out = sj.toString().getBytes(StandardCharsets.UTF_8);
+        int length = out.length;
+
+        http.setFixedLengthStreamingMode(length);
+        http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        http.connect();
+        try(OutputStream os = http.getOutputStream()) {
+            // handle output
+            return out;
+        }
+    }
+	
+	public static byte[] GetGameObject (String apikey, String objectid, String lobby) throws IOException {
+        URL url = new URL("https://renovatesoftware.com/API/getgameobjectdata/");
+        URLConnection con = url.openConnection();
+        HttpURLConnection http = (HttpURLConnection)con;
+        http.setRequestMethod("POST"); // set the method to POST
+        http.setDoOutput(true);
+
+        Map<String,String> arguments = new HashMap<>();
+
+        arguments.put("apikey", apikey); // provide the API key
+        arguments.put("objectid", objectid); // set the object id
+        arguments.put("lobbyid", lobby); // set the lobby id
+
+        StringJoiner sj = new StringJoiner("&");
+        for(Map.Entry<String,String> entry : arguments.entrySet())
+            sj.add(URLEncoder.encode(entry.getKey(), "UTF-8") + "="
+                    + URLEncoder.encode(entry.getValue(), "UTF-8"));
+        byte[] out = sj.toString().getBytes(StandardCharsets.UTF_8);
+        int length = out.length;
+
+        http.setFixedLengthStreamingMode(length);
+        http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        http.connect();
+        try(OutputStream os = http.getOutputStream()) {
+            // handle output
+            return out;
+        }
+    }
 }

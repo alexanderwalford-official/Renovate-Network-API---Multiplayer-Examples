@@ -57,3 +57,39 @@ var data = "apikey=" + apikey + "&lobbyid=\"" + lobby + "\"";
 
 xhr.send(data);
 }
+
+function SetObject(apikey, objectid, lobby, params) {
+var url = "https://renovatesoftware.com/API/setgameobjectdata/";
+
+var xhr = new XMLHttpRequest();
+xhr.open("POST", url);
+
+xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+xhr.onreadystatechange = function () {
+   if (xhr.readyState === 4) {
+      console.log("SERVER: " + xhr.status);
+   }};
+
+var data = "apikey=" + apikey + "&objectid=" + username + "&lobbyid=" + lobby + "&params=" + params;
+
+xhr.send(data);
+}
+
+function GetObject(apikey, objectid, lobby) {
+var url = "https://renovatesoftware.com/API/getgameobjectdata/";
+
+var xhr = new XMLHttpRequest();
+xhr.open("POST", url);
+
+xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+xhr.onreadystatechange = function () {
+   if (xhr.readyState === 4) {
+      console.log("SERVER: " + xhr.status);
+   }};
+
+var data = "apikey=" + apikey + "&objectid=" + username + "&lobbyid=" + lobby;
+
+xhr.send(data);
+}
