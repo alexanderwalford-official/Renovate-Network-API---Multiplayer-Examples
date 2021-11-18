@@ -1,163 +1,148 @@
+import javax.net.ssl.*;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
+import java.net.*;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
+import java.security.*;
+import java.security.cert.X509Certificate;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringJoiner;
 
-// RenovateNetworkMultiplayer.java
-// Renovate Software LTD 2021
-// Written by Alexander Walford
+public class MultiplayerDataHandler {
 
-public class RenovateNetwork {
-	
-	public static byte[] SetPlayer (String apikey, String username, String lobby, String position, String rotation) throws IOException {
+    // for my project, I've decided to go with a new endpoint I've developed on my company's server
+
+    // Renovate Network API  - Multiplayer Endpoint
+    // Script written by Alexander Walford
+
+    // Java is awkward wth self-signed SSL certificates, so you will need to
+    // call SetTrustManager() unless it's from an official signing identity
+    // call SendData() to send the player's position to the server
+    // call GetData(username) to get player details from the server
+    // call HandleData() to set the player's position from the data
+    // call SendBoardData() to send the player's score
+    // call GetBoardData() to get a specific scoreboard
+
+    // Custom SSL Trust Manager (ignores signing authority)
+    public static void SetTrustManager () {
+        TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager(){
+            public X509Certificate[] getAcceptedIssuers(){return null;}
+            public void checkClientTrusted(X509Certificate[] certs, String authType){}
+            public void checkServerTrusted(X509Certificate[] certs, String authType){}
+        }};
+
+        try {
+            SSLContext sc = SSLContext.getInstance("TLS");
+            sc.init(null, trustAllCerts, new SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            System.out.println("SYS: Installed new certificate trust manager.");
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    // Setting player data.
+    public static void SetPlayer (String apikey, String username, String lobby, String position, String rotation) throws IOException {
         URL url = new URL("https://renovatesoftware.com/API/setplayerdata/");
-        URLConnection con = url.openConnection();
-        HttpURLConnection http = (HttpURLConnection)con;
-        http.setRequestMethod("POST"); // set the method to POST
+
+        HttpURLConnection http = (HttpURLConnection)url.openConnection();
+        http.setRequestMethod("POST");
         http.setDoOutput(true);
+        http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
-        Map<String,String> arguments = new HashMap<>();
+        String data = "apikey="+apikey+"&playerid="+username+"&lobbyid="+lobby+"&position="+position+"&rotation="+rotation;
 
-        arguments.put("apikey", apikey); // provide the API key
-        arguments.put("playerid", username); // set the player id
-        arguments.put("lobbyid", lobby); // set the lobby id
-        arguments.put("position", position); // set the player position
-        arguments.put("rotation", rotation); // set the player rotation
+        byte[] out = data.getBytes(StandardCharsets.UTF_8);
 
-        StringJoiner sj = new StringJoiner("&");
-        for(Map.Entry<String,String> entry : arguments.entrySet())
-            sj.add(URLEncoder.encode(entry.getKey(), "UTF-8") + "="
-                    + URLEncoder.encode(entry.getValue(), "UTF-8"));
-        byte[] out = sj.toString().getBytes(StandardCharsets.UTF_8);
-        int length = out.length;
+        OutputStream stream = http.getOutputStream();
+        stream.write(out);
 
-        http.setFixedLengthStreamingMode(length);
-        http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-        http.connect();
-        try(OutputStream os = http.getOutputStream()) {
-            // handle output
-            return out;
-        }
+        System.out.println(http.getResponseCode() + " " + http.getResponseMessage());
+        http.disconnect();
     }
 
-    public static byte[] GetPlayer (String apikey, String username) throws IOException {
+    // Getting player data.
+    public static void GetPlayer (String apikey, String username) throws IOException {
         URL url = new URL("https://renovatesoftware.com/API/getplayerdata/");
-        URLConnection con = url.openConnection();
-        HttpURLConnection http = (HttpURLConnection)con;
-        http.setRequestMethod("POST"); // set the method to POST
+
+        HttpURLConnection http = (HttpURLConnection)url.openConnection();
+        http.setRequestMethod("POST");
         http.setDoOutput(true);
+        http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
-        Map<String,String> arguments = new HashMap<>();
+        String data = "apikey="+apikey+"&playerid="+ username;
 
-        arguments.put("apikey", apikey); // provide the API key
-        arguments.put("playerid", username); // set the player id
+        byte[] out = data.getBytes(StandardCharsets.UTF_8);
 
-        StringJoiner sj = new StringJoiner("&");
-        for(Map.Entry<String,String> entry : arguments.entrySet())
-            sj.add(URLEncoder.encode(entry.getKey(), "UTF-8") + "="
-                    + URLEncoder.encode(entry.getValue(), "UTF-8"));
-        byte[] out = sj.toString().getBytes(StandardCharsets.UTF_8);
-        int length = out.length;
+        OutputStream stream = http.getOutputStream();
+        stream.write(out);
 
-        http.setFixedLengthStreamingMode(length);
-        http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-        http.connect();
-        try(OutputStream os = http.getOutputStream()) {
-            // handle output
-            return out;
-        }
+        System.out.println(http.getResponseCode() + " " + http.getResponseMessage());
+        http.disconnect();
     }
 
-    public static byte[] GetPlayerList (String apikey, String lobby) throws IOException {
-        URL url = new URL("https://renovatesoftware.com/API/getplayerlist/");
-        URLConnection con = url.openConnection();
-        HttpURLConnection http = (HttpURLConnection)con;
-        http.setRequestMethod("POST"); // set the method to POST
+    // Getting the player list.
+    public static void GetPlayerList (String apikey, String lobby) throws IOException {
+        URL url = new URL("https://renovatesoftware.com/API/getlobby/");
+
+        HttpURLConnection http = (HttpURLConnection)url.openConnection();
+        http.setRequestMethod("POST");
         http.setDoOutput(true);
+        http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
-        Map<String,String> arguments = new HashMap<>();
+        String data = "apikey="+apikey+"&lobbyid="+ lobby;
 
-        arguments.put("apikey", apikey); // provide the API key
-        arguments.put("lobbyid", lobby); // set the lobby id
+        byte[] out = data.getBytes(StandardCharsets.UTF_8);
 
-        StringJoiner sj = new StringJoiner("&");
-        for(Map.Entry<String,String> entry : arguments.entrySet())
-            sj.add(URLEncoder.encode(entry.getKey(), "UTF-8") + "="
-                    + URLEncoder.encode(entry.getValue(), "UTF-8"));
-        byte[] out = sj.toString().getBytes(StandardCharsets.UTF_8);
-        int length = out.length;
+        OutputStream stream = http.getOutputStream();
+        stream.write(out);
 
-        http.setFixedLengthStreamingMode(length);
-        http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-        http.connect();
-        try(OutputStream os = http.getOutputStream()) {
-            // handle output
-            return out;
-        }
+        System.out.println(http.getResponseCode() + " " + http.getResponseMessage());
+        http.disconnect();
     }
-	
-	public static byte[] SetGameObject (String apikey, String objectid, String lobby, String params) throws IOException {
-        URL url = new URL("https://renovatesoftware.com/API/setgameobjectdata/");
-        URLConnection con = url.openConnection();
-        HttpURLConnection http = (HttpURLConnection)con;
-        http.setRequestMethod("POST"); // set the method to POST
+
+    // Setting Player Score On Scoreboard & Returning Their Rating
+    public static void SendBoardData(String apikey, String boardid, String playerid, String score) throws IOException {
+        URL url = new URL("https://renovatesoftware.com/API/setscore/");
+
+        HttpURLConnection http = (HttpURLConnection)url.openConnection();
+        http.setRequestMethod("POST");
         http.setDoOutput(true);
+        http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
-        Map<String,String> arguments = new HashMap<>();
+        String data = "apikey="+apikey+"&boardid="+ boardid +"&playerid=" + playerid + "&score=" + score;
 
-        arguments.put("apikey", apikey); // provide the API key
-        arguments.put("objectid", objectid); // set the object id
-        arguments.put("lobbyid", lobby); // set the lobby id
-        arguments.put("params", params); // set the player position
+        byte[] out = data.getBytes(StandardCharsets.UTF_8);
 
-        StringJoiner sj = new StringJoiner("&");
-        for(Map.Entry<String,String> entry : arguments.entrySet())
-            sj.add(URLEncoder.encode(entry.getKey(), "UTF-8") + "="
-                    + URLEncoder.encode(entry.getValue(), "UTF-8"));
-        byte[] out = sj.toString().getBytes(StandardCharsets.UTF_8);
-        int length = out.length;
+        OutputStream stream = http.getOutputStream();
+        stream.write(out);
 
-        http.setFixedLengthStreamingMode(length);
-        http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-        http.connect();
-        try(OutputStream os = http.getOutputStream()) {
-            // handle output
-            return out;
-        }
+        System.out.println(http.getResponseCode() + " " + http.getResponseMessage());
+        http.disconnect();
     }
-	
-	public static byte[] GetGameObject (String apikey, String objectid, String lobby) throws IOException {
-        URL url = new URL("https://renovatesoftware.com/API/getgameobjectdata/");
-        URLConnection con = url.openConnection();
-        HttpURLConnection http = (HttpURLConnection)con;
-        http.setRequestMethod("POST"); // set the method to POST
+
+    // Getting All Players & Their Score From The Scoreboard
+    public static void GetBoardData (String apikey, String boardid) throws IOException {
+        URL url = new URL("https://renovatesoftware.com/API/getscore/");
+
+        HttpURLConnection http = (HttpURLConnection)url.openConnection();
+        http.setRequestMethod("POST");
         http.setDoOutput(true);
+        http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
-        Map<String,String> arguments = new HashMap<>();
+        String data = "apikey="+apikey+"&boardid="+ boardid;
 
-        arguments.put("apikey", apikey); // provide the API key
-        arguments.put("objectid", objectid); // set the object id
-        arguments.put("lobbyid", lobby); // set the lobby id
+        byte[] out = data.getBytes(StandardCharsets.UTF_8);
 
-        StringJoiner sj = new StringJoiner("&");
-        for(Map.Entry<String,String> entry : arguments.entrySet())
-            sj.add(URLEncoder.encode(entry.getKey(), "UTF-8") + "="
-                    + URLEncoder.encode(entry.getValue(), "UTF-8"));
-        byte[] out = sj.toString().getBytes(StandardCharsets.UTF_8);
-        int length = out.length;
+        OutputStream stream = http.getOutputStream();
+        stream.write(out);
 
-        http.setFixedLengthStreamingMode(length);
-        http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-        http.connect();
-        try(OutputStream os = http.getOutputStream()) {
-            // handle output
-            return out;
-        }
+        System.out.println(http.getResponseCode() + " " + http.getResponseMessage());
+        http.disconnect();
     }
+
 }
