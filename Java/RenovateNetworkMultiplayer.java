@@ -14,8 +14,6 @@ import java.util.StringJoiner;
 
 public class MultiplayerDataHandler {
 
-    // for my project, I've decided to go with a new endpoint I've developed on my company's server
-
     // Renovate Network API  - Multiplayer Endpoint
     // Script written by Alexander Walford
 
